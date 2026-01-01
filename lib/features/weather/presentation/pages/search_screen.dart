@@ -9,57 +9,101 @@ class SearchScreen extends StatefulWidget {
 }
 
 class _SearchScreenState extends State<SearchScreen> {
-  final _textContoller = TextEditingController();
+  final _textController = TextEditingController();
 
-  @override
-  void dispose() {
-    _textContoller.dispose();
-    super.dispose();
-  }
+  void _validateAndSearch() {
+    final text = _textController.text.trim();
 
-  void _validText() {
-    final value = _textContoller.text.trim().isEmpty;
-    if (value) {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: Text('Invalid input'),
-            content: Text('Please enter a valid city name'),
-            actions: [
-              IconButton(
-                onPressed: Navigator.of(context).pop,
-                icon: Icon(Icons.clear),
-              ),
-            ],
-          );
-        },
-      );
+    if (text.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Please enter a city name")));
       return;
     }
 
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => HomeScreen(searchQuery: _textContoller.text),
-      ),
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => HomeScreen(searchQuery: text)),
     );
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Search for temp')),
-      body: Column(
-        children: [
-          TextField(
-            controller: _textContoller,
-            maxLength: 50,
-            decoration: InputDecoration(label: Text('enter a city')),
-          ),
-          const SizedBox(height: 8),
+  void dispose() {
+    _textController.dispose();
+    super.dispose();
+  }
 
-          ElevatedButton(onPressed: _validText, child: Text('Search')),
-        ],
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Scaffold(
+      body: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              theme.colorScheme.primary.withOpacity(0.7),
+              theme.colorScheme.secondary.withOpacity(0.7),
+            ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Search Weather 🌤️",
+                style: theme.textTheme.headlineMedium?.copyWith(
+                  color: theme.colorScheme.onPrimary,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 15),
+              Text(
+                "Enter a city name to get weather details",
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.onPrimary.withOpacity(0.8),
+                ),
+              ),
+              const SizedBox(height: 40),
+
+              TextField(
+                controller: _textController,
+                textInputAction: TextInputAction.search,
+                onSubmitted: (_) => _validateAndSearch(),
+                decoration: InputDecoration(
+                  hintText: "e.g. London, Paris, Tokyo",
+                  prefixIcon: Icon(Icons.search),
+                  filled: true,
+                  fillColor: Colors.white.withOpacity(0.9),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 25),
+
+              SizedBox(
+                width: double.infinity,
+                height: 55,
+                child: ElevatedButton(
+                  onPressed: _validateAndSearch,
+                  style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  child: Text("Search", style: TextStyle(fontSize: 18)),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

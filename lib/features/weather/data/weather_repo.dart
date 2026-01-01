@@ -15,8 +15,10 @@ class WeatherRepo {
 
     try {
       final respond = await http.get(url);
+
       if (respond.statusCode == 200) {
         final data = jsonDecode(respond.body);
+        print(respond.body);
         return WeatherApi.fromJson(data);
       } else if (respond.statusCode == 404) {
         throw ('No city found');
